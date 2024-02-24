@@ -1,0 +1,5 @@
+*.pb.go
+*/index.db
+clientA/*
+clientB/*
+hashToServerMapping.csv
