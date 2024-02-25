@@ -3,3 +3,6 @@
 clientA/*
 clientB/*
 hashToServerMapping.csv
+
+# Testing
+test/_bin/*

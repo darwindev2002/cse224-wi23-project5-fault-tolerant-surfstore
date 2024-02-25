@@ -1,4 +1,4 @@
-module cse224/proj4
+module cse224/proj5
 
 go 1.18
 
