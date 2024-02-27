@@ -1,9 +1,11 @@
 package SurfTest
 
 import (
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	"log"
 	"os"
 	"testing"
+
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	//	"time"
 )
 
@@ -38,6 +40,10 @@ func TestSyncTwoClientsSameFileLeaderFailure(t *testing.T) {
 	}
 
 	//client1 syncs
+	log.Println()
+	log.Println("**********  Start Test   **********")
+	log.Println("********** client1 syncs **********")
+	log.Println()
 	err = SyncClient("localhost:8080", "test0", BLOCK_SIZE, cfgPath)
 	if err != nil {
 		t.Fatalf("Sync failed")
@@ -46,10 +52,16 @@ func TestSyncTwoClientsSameFileLeaderFailure(t *testing.T) {
 	test.Clients[0].SendHeartbeat(test.Context, &emptypb.Empty{})
 
 	test.Clients[0].Crash(test.Context, &emptypb.Empty{})
+	log.Println()
+	log.Println("********** Raft[0] is crashed **********")
+	log.Println()
 	test.Clients[1].SetLeader(test.Context, &emptypb.Empty{})
 	test.Clients[1].SendHeartbeat(test.Context, &emptypb.Empty{})
 
 	//client2 syncs
+	log.Println()
+	log.Println("********** client2 syncs **********")
+	log.Println()
 	err = SyncClient("localhost:8080", "test1", BLOCK_SIZE, cfgPath)
 	if err != nil {
 		t.Fatalf("Sync failed")
@@ -58,6 +70,9 @@ func TestSyncTwoClientsSameFileLeaderFailure(t *testing.T) {
 	test.Clients[1].SendHeartbeat(test.Context, &emptypb.Empty{})
 
 	//client1 syncs
+	log.Println()
+	log.Println("********** client1 syncs **********")
+	log.Println()
 	err = SyncClient("localhost:8080", "test0", BLOCK_SIZE, cfgPath)
 	if err != nil {
 		t.Fatalf("Sync failed")

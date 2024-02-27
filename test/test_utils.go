@@ -263,6 +263,7 @@ func InitSurfServers(blockStores int) []*exec.Cmd {
 	cmdList := make([]*exec.Cmd, 0)
 	if blockStores == 0 {
 		serverCmd := exec.Command("_bin/SurfstoreServerExec", "-s", "both", "-l", "localhost:8080")
+		// serverCmd := exec.Command("_bin/SurfstoreServerExec", "-s", "both", "-l", "-d", "localhost:8080")
 		serverCmd.Stderr = os.Stderr
 		serverCmd.Stdout = os.Stdout
 		cmdList = append(cmdList, serverCmd)
@@ -271,6 +272,7 @@ func InitSurfServers(blockStores int) []*exec.Cmd {
 		for i := 1; i <= blockStores; i++ {
 			port := 8080 + i
 			blockCmd := exec.Command("_bin/SurfstoreServerExec", "-s", "block", "-p", strconv.Itoa(port), "-l")
+			// blockCmd := exec.Command("_bin/SurfstoreServerExec", "-s", "block", "-p", strconv.Itoa(port), "-l", "-d")
 			blockCmd.Stderr = os.Stderr
 			blockCmd.Stdout = os.Stdout
 			cmdList = append(cmdList, blockCmd)
@@ -307,7 +309,7 @@ func KillSurfServers(servers []*exec.Cmd) {
 }
 
 func SyncClient(metaAddr, baseDir string, blockSize int, cfgPath string) error {
-	clientCmd := exec.Command("_bin/SurfstoreClientExec", "-f", cfgPath, baseDir, strconv.Itoa(blockSize))
+	clientCmd := exec.Command("_bin/SurfstoreClientExec", "-d", "-f", cfgPath, baseDir, strconv.Itoa(blockSize))
 	clientCmd.Stderr = os.Stderr
 	clientCmd.Stdout = os.Stdout
 
