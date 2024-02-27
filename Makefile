@@ -6,6 +6,7 @@ install:
 
 .PHONY: run-both
 run-both:
+	# go run cmd/SurfstoreServerExec/main.go -s both -p 8081 -l -d localhost:8081
 	go run cmd/SurfstoreServerExec/main.go -s both -p 8081 -l localhost:8081
 
 # .PHONY: run-metastore
@@ -14,10 +15,12 @@ run-both:
 
 .PHONY: run-blockstore
 run-blockstore:
+	# go run cmd/SurfstoreServerExec/main.go -s block -p 8081 -l -d
 	go run cmd/SurfstoreServerExec/main.go -s block -p 8081 -l
 
 .PHONY: run-raft
 run-raft:
+	# go run cmd/SurfstoreRaftServerExec/main.go -f example_config.txt -i $(IDX) -d
 	go run cmd/SurfstoreRaftServerExec/main.go -f example_config.txt -i $(IDX)
 
 .PHONY: test

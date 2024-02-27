@@ -15,13 +15,13 @@ func ClientSync(client RPCClient) {
 	// Open base dir
 	baseDirStats, err := os.Stat(client.BaseDir)
 	if err != nil || !baseDirStats.IsDir() {
-		log.Panicf("Error raised when sync'ing - %v\n", err)
+		log.Panicf("Error raised when sync'ing 1 - %v\n", err)
 	}
 
 	// Open local index (index.db)
 	localIndex, err := LoadMetaFromMetaFile(client.BaseDir)
 	if err != nil {
-		log.Panicf("Error raised when sync'ing - %v\n", err)
+		log.Panicf("Error raised when sync'ing 2 - %v\n", err)
 	}
 
 	// Download remote index
@@ -31,7 +31,7 @@ func ClientSync(client RPCClient) {
 	// Get list of files
 	files, err := os.ReadDir(client.BaseDir)
 	if err != nil {
-		log.Panicf("Error raised when sync'ing - %v\n", err)
+		log.Panicf("Error raised when sync'ing 3 - %v\n", err)
 	}
 
 	// Update local index
@@ -48,7 +48,7 @@ func ClientSync(client RPCClient) {
 
 		hList, err := GetFileHashList(ConcatPath(client.BaseDir, file.Name()), client.BlockSize)
 		if err != nil {
-			log.Panicf("Error raised when sync'ing - %v\n", err)
+			log.Panicf("Error raised when sync'ing 4 - %v\n", err)
 		}
 
 		// If it is a new file, i.e. not yet in local index
@@ -102,13 +102,19 @@ func ClientSync(client RPCClient) {
 			}
 		}
 	}
+	// log.Println("---------------------------------------")
+	// log.Println("MetaStoreAddrs", client.MetaStoreAddrs)
+	// log.Println("localMetaData", localIndex)
+	// log.Println("remoteMetaData", remoteIndex)
+	// log.Println("---------------------------------------")
 
 	for fileName, localMetaData := range localIndex {
 		if remoteMetaData, ok := remoteIndex[fileName]; !ok {
 			// File not exist at remote
 			e := UploadFile(client, localMetaData, &FileMetaData{Version: 0})
 			if e != nil {
-				log.Panicf("Error raised when sync'ing - %v\n", err)
+				log.Panicf("Error raised when sync'ing 5 - %v\n", err.Error())
+				// log.Panicf("Client: %v \nlocalIndex: %v\nremoteIndex: %v\nlocalMetaData: %v \nremoteMetaData: %v \nError raised when sync'ing 5 \n", client, localIndex, remoteIndex, localMetaData, remoteMetaData)
 			}
 		} else {
 			// File exist at remote,
@@ -116,7 +122,7 @@ func ClientSync(client RPCClient) {
 			if localMetaData.Version >= remoteMetaData.Version {
 				e := UploadFile(client, localMetaData, remoteMetaData)
 				if e != nil {
-					log.Panicf("Error raised when sync'ing - %v\n", err)
+					log.Panicf("Error raised when sync'ing 6 - %v\n", err)
 				}
 			}
 		}
@@ -322,7 +328,6 @@ func UploadFile(client RPCClient, localMetaData *FileMetaData, remoteMetaData *F
 		return err
 	}
 	defer file.Close()
-
 	// Get "hash => server" map for later PutBlock
 	hashToServerMap, err := UploadFileHelper(client, localMetaData.BlockHashList)
 	if err != nil {
@@ -348,7 +353,7 @@ func UploadFile(client RPCClient, localMetaData *FileMetaData, remoteMetaData *F
 		block := Block{BlockData: buf, BlockSize: int32(n)}
 
 		var succ bool
-		log.Printf("Utils - UploadFile - Uploading %v bytes with hash \"%v\" to server \"%v\"\n", n, GetBlockHashString(buf[:n]), hashToServerMap[GetBlockHashString(buf[:n])])
+		log.Printf("Utils - UploadFile - Uploading %v bytes with hash \"%v\"... to server \"%v\"\n", n, GetBlockHashString(buf[:n])[:10], hashToServerMap[GetBlockHashString(buf[:n])])
 		if err := client.PutBlock(&block, hashToServerMap[GetBlockHashString(buf[:n])], &succ); err != nil {
 			return err
 		}
@@ -356,6 +361,7 @@ func UploadFile(client RPCClient, localMetaData *FileMetaData, remoteMetaData *F
 
 	// Update remote meta
 	if err := client.UpdateFile(localMetaData, &latestVersion); err != nil {
+		log.Printf("Utils - UploadFile - Error raised when updating file: %v\n", err.Error())
 		return err
 	}
 
